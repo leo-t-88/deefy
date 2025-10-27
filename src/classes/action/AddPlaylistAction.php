@@ -1,0 +1,30 @@
+<?php
+declare(strict_types=1);
+
+namespace iutnc\deefy\action;
+
+use iutnc\deefy\audio\lists\Playlist;
+use iutnc\deefy\render\AudioListRenderer;
+use iutnc\deefy\render\Renderer;
+
+class AddPlaylistAction extends Action {
+    public function execute() : string {
+        if ($this->http_method === 'GET'){
+        //if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+            return <<< HTML
+            <h1>Ajouter une playlist</h1>
+                <form method="post" action="?action=add-playlist">
+                    <label for="nomp">Nom de la playlist :</label>
+                    <input type="text" id="nomp" name="nomp" placeholder="Nom" required>
+                    <br>
+                    <input type="submit" value="Ajouter">
+                </form>
+            HTML;
+        } else {
+            session_start();
+            $playlist = new Playlist((filter_var($_POST['nomp'], FILTER_SANITIZE_SPECIAL_CHARS)), []);
+            $_SESSION['playlist' . $_POST['nomp']] = serialize($playlist);
+            return (new AudioListRenderer($playlist))->render(Renderer::LONG);
+        }
+    }
+}
