@@ -23,7 +23,7 @@ class AddPlaylistAction extends Action {
         } else {
             session_start();
             $playlist = new Playlist((filter_var($_POST['nomp'], FILTER_SANITIZE_SPECIAL_CHARS)), []);
-            $_SESSION['playlist' . $_POST['nomp']] = serialize($playlist);
+            $_SESSION['playlist'][$_POST['nomp']] = serialize($playlist);
             return (new AudioListRenderer($playlist))->render(Renderer::LONG);
         }
     }

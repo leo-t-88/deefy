@@ -64,11 +64,11 @@ class AddPodcastTrackAction extends Action {
 
             $track = new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, "");
 
-            if (!isset($_SESSION['playlist' . $nomp])) $_SESSION['playlist' . $nomp] = serialize(new Playlist($nomp, []));
+            if (!isset($_SESSION['playlist'][$nomp])) $_SESSION['playlist'][$nomp] = serialize(new Playlist($nomp, []));
 
-            $playlist = unserialize($_SESSION['playlist' . $nomp]);
+            $playlist = unserialize($_SESSION['playlist'][$nomp]);
             $playlist->addTrack($track);
-            $_SESSION['playlist' . $nomp] = serialize($playlist);
+            $_SESSION['playlist'][$nomp] = serialize($playlist);
 
             return (new AudioListRenderer($playlist))->render(Renderer::LONG);
 

@@ -10,7 +10,10 @@ class DisplayPlaylistsAction extends Action {
         session_start();
         
         $allPlaylists = "";
-        foreach ($_SESSION as $key => $value) {
+
+        if (!isset($_SESSION['playlist']) || !is_array($_SESSION['playlist'])) return "<p>Aucune playlist trouvée.</p>";
+
+        foreach ($_SESSION['playlist'] as $key => $value) {
             $playlist = unserialize($value);
             $allPlaylists .= (new AudioListRenderer($playlist))->render();
         }
