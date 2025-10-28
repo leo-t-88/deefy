@@ -7,6 +7,7 @@ namespace iutnc\deefy\repository;
 use PDO;
 use PDOException;
 use iutnc\deefy\audio\lists\Playlist;
+use \iutnc\deefy\audio\tracks\PodcastTrack;
 
 class DeefyRepository {
     private PDO $pdo;
@@ -50,18 +51,26 @@ class DeefyRepository {
     }
 
     public function saveEmptyPlaylist(Playlist $playlist): Playlist {
-        $stmt = $this->pdo->prepare("INSERT INTO playlist (nom) VALUES (?)");
+        $stmt = $this->pdo->prepare("INSERT INTO playlist(nom) VALUES (?)");
         $stmt->execute([$playlist->nom]);
         $playlist->id = (int)$this->pdo->lastInsertId();
         return $playlist;
     }
 
-    public function savePodcastTrack(\iutnc\deefy\audio\tracks\PodcastTrack $track): \iutnc\deefy\audio\tracks\PodcastTrack {
-        $stmt = $this->pdo->prepare("INSERT INTO track (
-                                        titre, genre, duree, filename, type,
-                                        auteur_podcast, date_podcast
-                                    )
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)");
+    public function linkUserPlaylist(string $email, int $playlistID) : void{
+        $userID = $this->getUser($email)['id']; //Récupère l'ID de l'utilisateur à partir de son email
+
+        $stmt = $this->pdo->prepare("INSERT INTO user2playlist(id_user, id_pl) VALUES (?, ?)");
+        $stmt->execute([$userID, $playlistID]);
+    }
+
+    public function linkPlaylistTrack(int $playlistID, int $trackID) : void{
+        $stmt = $this->pdo->prepare("INSERT INTO playlist2track(id_pl, id_track) VALUES (?, ?)");
+        $stmt->execute([$playlistID, $trackID]);
+    }
+
+    public function savePodcastTrack(PodcastTrack $track): PodcastTrack {
+        $stmt = $this->pdo->prepare("INSERT INTO track (titre, genre, duree, filename, type, auteur_podcast, date_podcast) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $track->titre,
             $track->genre,
@@ -127,15 +136,8 @@ class DeefyRepository {
         $stmt->execute([':email' => $email, ':hash' => $hash]);
     }
 
-    public function getRoleUser(string $email): ?int {
-        $stmt = $this->pdo->prepare("SELECT role FROM user WHERE email = :email");
-        $stmt->execute([':email' => $email]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['role'] ?? null;
-    }
-
-    public function getUserByEmail(string $email): ?array {
-        $stmt = $this->pdo->prepare("SELECT id, email, role FROM user WHERE email = :email");
+    public function getUser(string $email): ?array {
+        $stmt = $this->pdo->prepare("SELECT id, role FROM user WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 

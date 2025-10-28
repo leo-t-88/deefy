@@ -7,15 +7,34 @@ use iutnc\deefy\audio\lists\Playlist;
 use iutnc\deefy\audio\tracks\PodcastTrack;
 use iutnc\deefy\render\AudioListRenderer;
 use iutnc\deefy\render\Renderer;
+use iutnc\deefy\repository\DeefyRepository;
+use iutnc\deefy\auth\Authz;
+use iutnc\deefy\exception\AuthnException;
 
 class AddPodcastTrackAction extends Action {
     public function execute() : string {
+        session_start();
+
         if ($this->http_method === 'GET'){
+            $playlists = DeefyRepository::getInstance()->findAllPlaylists();
+
+            $options = '';
+            foreach ($playlists as $p) {
+                try {
+                    Authz::checkPlaylistOwner($p->id);
+                    $label = htmlspecialchars($p->nom, ENT_QUOTES);
+                    $val = $p->id;
+                    $options .= "<option value=\"$val\">$label</option>";
+                } catch (AuthnException $e) {}
+            }
+
             return <<< HTML
             <h1>Ajouter une piste</h1>
                 <form method="post" action="?action=add-track" enctype="multipart/form-data">
-                    <label for="nomp">Playlist :</label>
-                    <input type="text" id="nomp" name="nomp" placeholder="Nom de la playlist">
+                    <label for="idp">Playlist :</label>
+                    <select id="idp" name="idp" required>
+                        $options
+                    </select>
                     <br>
                     <label for="titre">Titre :</label>
                     <input type="text" id="titre" name="titre" placeholder="Titre" required>
@@ -24,13 +43,13 @@ class AddPodcastTrackAction extends Action {
                     <input type="text" id="auteur" name="auteur" placeholder="Nom de(s) auteur(s)" required>
                     <br>
                     <label for="userfile">Chemin du fichier :</label>
-                    <input type="file" id="userfile" name="userfile" required>
+                    <input type="file" id="userfile" name="userfile" accept=".mp3" required>
                     <br>
                     <input type="submit" value="Ajouter à la playlist">
                 </form>
             HTML;
         } else {
-            session_start();
+            if (!isset($_SESSION['user'])) return "<p>Vous devez être connecté pour crée une playlist.</p>";
 
             if (!isset($_FILES['userfile']) || $_FILES['userfile']['error'] !== UPLOAD_ERR_OK) return 'Erreur upload du fichier.' . $this->execute();
 
@@ -50,9 +69,6 @@ class AddPodcastTrackAction extends Action {
             // Lecture éventuelle des métadonnées
             $titre = filter_var($_POST['titre'], FILTER_SANITIZE_SPECIAL_CHARS);
             $auteur = filter_var($_POST['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
-            $nomp = filter_var($_POST['nomp'], FILTER_SANITIZE_SPECIAL_CHARS);
-
-            if ($_POST['nomp'] === "") $nomp = "Favorites";
 
             $info = (new \getID3)->analyze($audioRoot . '/' . $filename);
             if (isset($info['playtime_seconds'])) $duree = (int)$info['playtime_seconds'];
@@ -62,32 +78,16 @@ class AddPodcastTrackAction extends Action {
                 if ($auteur === '') $auteur = $info['tags']['id3v2']['artist'][0] ?? 'Inconnu';
             }
 
-            $track = new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, "");
+            $repo = DeefyRepository::getInstance();
 
-            if (!isset($_SESSION['playlist'][$nomp])) $_SESSION['playlist'][$nomp] = serialize(new Playlist($nomp, []));
+            $track = $repo->savePodcastTrack(new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, ""));
+            $repo->linkPlaylistTrack((int)$_POST['idp'], $track->id);
 
-            $playlist = unserialize($_SESSION['playlist'][$nomp]);
+            $playlist = $repo->findPlaylistById((int)$_POST['idp']);
             $playlist->addTrack($track);
-            $_SESSION['playlist'][$nomp] = serialize($playlist);
+            $_SESSION['playlist'] = serialize($playlist);
 
             return (new AudioListRenderer($playlist))->render(Renderer::LONG);
-
-            /*
-            $path = filter_input(INPUT_POST, 'patht', FILTER_SANITIZE_URL);
-            if (!preg_match('/\.(mp3|ogg|wav|flac)$/i', $path)) return "Erreur : le fichier doit être un fichier .mp3, .ogg, .wav ou .flac";
-            
-            $nomp = filter_var($_POST['nomp'], FILTER_SANITIZE_SPECIAL_CHARS);
-            // Si aucun nom alors favoris
-            if ($_POST['nomp'] === "") $nomp = "Favorites";
-
-            // Si la playlist n'existe pas, on la crée
-            if (!isset($_SESSION['playlist' . $nomp])) $_SESSION['playlist' . $nomp] = serialize(new Playlist($nomp, []));
-
-            $piste = new AudioTrack((filter_var($_POST['nomt'], FILTER_SANITIZE_SPECIAL_CHARS)), $path);
-            $playlist = unserialize($_SESSION['playlist' . $nomp]);
-            $playlist->addTrack($piste);
-            $_SESSION['playlist' . $nomp] = serialize($playlist);
-            return (new AudioListRenderer($playlist))->render(Renderer::LONG);*/
         }
     }
 }

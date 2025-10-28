@@ -22,8 +22,7 @@ class DisplayPlaylistAction extends Action {
 
             if (!$playlist) return "<p>Playlist introuvable.</p>";
 
-            $renderer = new AudioListRenderer($playlist);
-            return $renderer->render();
+            return (new AudioListRenderer($playlist))->render();
             
         } catch (\Exception $e) {
             return "<p>Erreur : " . htmlspecialchars($e->getMessage()) . "</p>";

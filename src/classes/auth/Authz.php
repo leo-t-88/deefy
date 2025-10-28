@@ -9,7 +9,7 @@ class Authz {
     public static function checkRole(int $expectedRole): void {
         if (!isset($_SESSION['user'])) throw new AuthnException("Utilisateur non authentifié");
 
-        $role = DeefyRepository::getInstance()->getRoleUser($_SESSION['user']);
+        $role = (DeefyRepository::getInstance()->getUser($_SESSION['user']))['role'];
 
         if (is_null($role) || (int)$role < $expectedRole) {
             throw new AuthnException("Accès refusé : Permission insuffisante");
@@ -22,7 +22,7 @@ class Authz {
 
         $repo = DeefyRepository::getInstance();
 
-        $user = $repo->getUserByEmail($_SESSION['user']);
+        $user = $repo->getUser($_SESSION['user']);
         if (!$user) throw new AuthnException("Utilisateur introuvable.");
 
         if ((int)$user['role'] === 100) return; // ADMIN a accès à tout
