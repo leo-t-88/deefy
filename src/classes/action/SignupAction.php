@@ -9,16 +9,18 @@ class SignupAction extends Action {
     public function execute() : string {
         if ($this->http_method === 'GET'){
             return <<< HTML
-                <h2>Crée un compte</h2>
-                <form method="post" action="?action=signup">
-                    <input type="email" id="emailu" name="emailu" placeholder="Email" required>
-                    <br>
-                    <input type="password" id="mdpu" name="mdpu" placeholder="Mot de passe" required>
-                    <br>
-                    <input type="password" id="mdp2u" name="mdp2u" placeholder="Mot de passe" required>
-                    <br>
-                    <input type="submit" value="S'inscrire">
-                </form>
+                <div class="signform">
+                    <h2>Crée un compte</h2>
+                    <form method="post" action="?action=signup">
+                        <input type="email" id="emailu" name="emailu" placeholder="Email" required>
+                        <br>
+                        <input type="password" id="mdpu" name="mdpu" placeholder="Mot de passe" required>
+                        <br>
+                        <input type="password" id="mdp2u" name="mdp2u" placeholder="Mot de passe" required>
+                        <br>
+                        <input type="submit" value="S'inscrire">
+                    </form>
+                </div>
             HTML;
         } else { // POST
             session_start();
@@ -35,6 +37,8 @@ class SignupAction extends Action {
 
                 AuthnProvider::register($email, $_POST['mdpu']);
                 $_SESSION['user'] = $email;
+                // Playlist => null, pour éviter un hack qui permetrait à un utilisateur de modifier une playlist d'un autre utilisateur s'il était connecté à ce compte en question avant
+                $_SESSION['playlist'] = null;
 
                 return "<p>Compte créé et connecté ! Bienvenue $email</p>";
             } catch (AuthnException $e) {

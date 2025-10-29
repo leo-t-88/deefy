@@ -50,14 +50,16 @@ class Dispatcher {
             <link rel='stylesheet' href='src/css/style.css'>
         </head>
         <body>
-            <ul>
-                <li><a href='?action=defaut'>Accueil</a></li>
-                <li><a href='?action=list-playlists'>Mes playlists</a></li>
-                <li><a href='?action=add-playlist'>Ajouter une playlist</a></li>
-                <li><a href='?action=signin'>Se connecter</a></li>
-                <li><a href='?action=signup'>S'inscrire</a></li>
-            </ul>
-            $html
+            <div id="menu">
+                <ul>
+                    <li><a href='?action=defaut'>Accueil</a></li>
+                    <li><a href='?action=list-playlists'>Mes playlists</a></li>
+                    <li><a href='?action=add-playlist'>Ajouter une playlist</a></li>
+                    <li><a href='?action=signin'>Se connecter</a></li>
+                    <li><a href='?action=signup'>S'inscrire</a></li>
+                </ul>
+            </div>
+        $html
         </body>
         </html>
         HTML;
