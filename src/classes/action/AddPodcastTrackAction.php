@@ -13,50 +13,28 @@ use iutnc\deefy\exception\AuthnException;
 
 class AddPodcastTrackAction extends Action {
     public function execute() : string {
-        session_start();
-
         if ($this->http_method === 'GET'){
-            $playlists = DeefyRepository::getInstance()->findAllPlaylists();
-
-            $options = '';
-            foreach ($playlists as $p) {
-                try {
-                    Authz::checkPlaylistOwner($p->id);
-                    $label = htmlspecialchars($p->nom, ENT_QUOTES);
-                    $val = $p->id;
-                    $options .= "<option value=\"$val\">$label</option>";
-                } catch (AuthnException $e) {}
-            }
-
             return <<< HTML
-            <h1>Ajouter une piste</h1>
-                <form method="post" action="?action=add-track" enctype="multipart/form-data">
-                    <label for="idp">Playlist :</label>
-                    <select id="idp" name="idp" required>
-                        $options
-                    </select>
-                    <br>
-                    <label for="titre">Titre :</label>
-                    <input type="text" id="titre" name="titre" placeholder="Titre" required>
-                    <br>
-                    <label for="auteur">Auteur :</label>
-                    <input type="text" id="auteur" name="auteur" placeholder="Nom de(s) auteur(s)" required>
-                    <br>
-                    <label for="userfile">Chemin du fichier :</label>
-                    <input type="file" id="userfile" name="userfile" accept=".mp3" required>
+                <h3>Ajouter une piste</h3>
+                <form method="post" enctype="multipart/form-data">
+                    <input type="text" name="titre" placeholder="Titre" required>
+                    <input type="text" name="auteur" placeholder="Auteur(e)(s)" required>
+                    <input type="file" name="userfile" accept=".mp3" required>
                     <br>
                     <input type="submit" value="Ajouter à la playlist">
                 </form>
             HTML;
         } else {
-            if (!isset($_SESSION['user'])) return "<p>Vous devez être connecté pour crée une playlist.</p>";
+            session_start();
 
-            if (!isset($_FILES['userfile']) || $_FILES['userfile']['error'] !== UPLOAD_ERR_OK) return 'Erreur upload du fichier.' . $this->execute();
+            if (!isset($_SESSION['user'])) return "<p>Vous devez être connecté pour ajouter une piste.</p>";
+
+            if (!isset($_FILES['userfile']) || $_FILES['userfile']['error'] !== UPLOAD_ERR_OK) return 'Erreur upload du fichier.';
 
             $file = $_FILES['userfile'];
             $type = $file['type'];
 
-            if (strtolower(substr($file['name'], -4)) !== '.mp3' || $type !== 'audio/mpeg') return 'Seuls les fichiers MP3 sont acceptés.' . $this->execute();
+            if (strtolower(substr($file['name'], -4)) !== '.mp3' || $type !== 'audio/mpeg') return 'Seuls les fichiers MP3 sont acceptés.';
 
             // répertoire cible
             $audioRoot = dirname(__DIR__, 3) . '/audio';
@@ -80,14 +58,15 @@ class AddPodcastTrackAction extends Action {
 
             $repo = DeefyRepository::getInstance();
 
-            $track = $repo->savePodcastTrack(new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, ""));
-            $repo->linkPlaylistTrack((int)$_POST['idp'], $track->id);
+            if (!isset($_SESSION['playlist'])) return "<p>Aucune playlist courrante. Veuillez d'abord sélectionner ou créer une playlist.</p>";
 
-            $playlist = $repo->findPlaylistById((int)$_POST['idp']);
-            $playlist->addTrack($track);
+            $track = $repo->savePodcastTrack(new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, ""));
+            $repo->linkPlaylistTrack($_SESSION['playlist']->id, $track->id);
+
+            $playlist = $repo->findPlaylistById($_SESSION['playlist']->id);
             $_SESSION['playlist'] = serialize($playlist);
 
-            return (new AudioListRenderer($playlist))->render(Renderer::LONG);
+            return "<p>Piste ajoutée avec succès !</p>";
         }
     }
 }

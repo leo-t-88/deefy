@@ -17,7 +17,7 @@ class Dispatcher {
             case 'display-playlist':
                 $html = (new action\DisplayPlaylistAction())->execute();
                 break;
-            case 'playlist':
+            case 'list-playlists':
                 $html = (new action\DisplayPlaylistsAction())->execute();
                 break;
             case 'add-playlist':
@@ -43,23 +43,22 @@ class Dispatcher {
         echo <<<HTML
         <!DOCTYPE html>
         <html lang='fr'>
-          <head>
+        <head>
             <meta charset='UTF-8'>
             <meta name='viewport' content='width=device-width, initial-scale=1.0'>
             <title>Deefy</title>
-          </head>
-          <body>
+            <link rel='stylesheet' href='src/css/style.css'>
+        </head>
+        <body>
             <ul>
-              <li><a href='?action=defaut'>Accueil</a></li>
-              <li><a href='?action=playlist'>Mes playlists</a></li>
-              <li><a href='?action=display-playlist'>(Temp) Une playlist</a></li>
-              <li><a href='?action=add-playlist'>Ajouter une playlist</a></li>
-              <li><a href='?action=add-track'>Ajouter une piste</a></li>
-              <li><a href='?action=signin'>Se connecter</a></li>
-              <li><a href='?action=signup'>S'inscrire</a></li>
+                <li><a href='?action=defaut'>Accueil</a></li>
+                <li><a href='?action=list-playlists'>Mes playlists</a></li>
+                <li><a href='?action=add-playlist'>Ajouter une playlist</a></li>
+                <li><a href='?action=signin'>Se connecter</a></li>
+                <li><a href='?action=signup'>S'inscrire</a></li>
             </ul>
             $html
-          </body>
+        </body>
         </html>
         HTML;
     }

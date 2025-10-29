@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace iutnc\deefy\render;
 
 use iutnc\deefy\audio\lists\AudioList;
+use iutnc\deefy\audio\tracks\PodcastTrack;
+use iutnc\deefy\audio\tracks\AlbumTrack;
 
 class AudioListRenderer implements Renderer {
     protected AudioList $list;
@@ -12,14 +14,20 @@ class AudioListRenderer implements Renderer {
     }
 
     public function render(int $selector = 0): string {
-        $html = "<h2>{$this->list->nom}</h2><ul>";
-        $html .= "</ul><p>{$this->list->nbpistes} pistes, {$this->list->duree} secondes</p>";
-        foreach ($this->list->pistes as $piste) {
-            $html .= "<li>
-                        <p>{$piste->titre}</p>
-                        <audio controls src='./audio/{$piste->fichier}'></audio>
-                    </li>";
+        $rendu = "<h2>{$this->list->nom}</h2>\n\t<p>{$this->list->nbpistes} pistes, {$this->list->duree} secondes</p>\n\t<ul>\n";
+
+        $trackRender = '';
+        foreach ($this->list->pistes as $p) {
+            if ($p instanceof PodcastTrack) {
+                $trackRender = (new PodcastRenderer($p))->renderLong();
+            } else if ($p instanceof AlbumTrack) {
+                $trackRender = (new AlbumTrackRenderer($p))->renderLong();
+            }
+
+            $rendu .= "\t\t<li>{$trackRender}</li>\n";
         }
-        return $html;
+
+        return $rendu . "\t</ul>\n";
+
     }
 }
