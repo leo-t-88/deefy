@@ -12,11 +12,10 @@ class DisplayPlaylistAction extends Action {
         session_start();
 
         $id = $_GET['id'] ?? null;
-            
-        if (!isset($_SESSION['playlist'])) return "<p>Aucune playlist en session.</p>";
         
         if ($id && is_numeric($id)){
             $id = (int)$id;
+
             try {
                 Authz::checkPlaylistOwner($id);
                 $playlist = DeefyRepository::getInstance()->findPlaylistById($id);
@@ -28,6 +27,8 @@ class DisplayPlaylistAction extends Action {
                 return "<p>Erreur : " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
+
+        if (!isset($_SESSION['playlist'])) return "<p>Aucune playlist en session.</p>";
 
         return (new AudioListRenderer(unserialize($_SESSION['playlist'])))->render() . (new AddPodcastTrackAction())->execute();
     }

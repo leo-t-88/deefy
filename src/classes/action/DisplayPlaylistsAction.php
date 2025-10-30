@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace iutnc\deefy\action;
 
 use iutnc\deefy\render\AudioListRenderer;
+use iutnc\deefy\repository\DeefyRepository;
+use iutnc\deefy\auth\AuthnProvider;
 
 class DisplayPlaylistsAction extends Action {
     public function execute() : string {
@@ -11,12 +13,26 @@ class DisplayPlaylistsAction extends Action {
         
         $allPlaylists = "";
 
-        if (!isset($_SESSION['playlist']) || !is_array($_SESSION['playlist'])) return "<p>Aucune playlist trouvée.</p>";
+        try{
+            $mail = AuthnProvider::getSignedInUser();
+            $id = DeefyRepository::getInstance()->getUserID($mail);
 
-        foreach ($_SESSION['playlist'] as $key => $value) {
-            $playlist = unserialize($value);
-            $allPlaylists .= (new AudioListRenderer($playlist))->render();
+            $playlists = DeefyRepository::getInstance()->getPlaylistsUser($id);
+            
+            if (!$playlists) return "<p>Aucune playlist</p>";
+
+
+            foreach($playlists as $pid){
+                $playlist = DeefyRepository::getInstance()->findPlaylistById((int)$pid);
+                if ($playlist) {
+                    $allPlaylists .= (new AudioListRenderer($playlist))->render();
+                }
+            }
+        } catch (\Exception $e) {
+            return "<p>Erreur : " . htmlspecialchars($e->getMessage()) . "</p>";
         }
+        
         return $allPlaylists;
+        
     }
 }
