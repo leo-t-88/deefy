@@ -26,7 +26,9 @@ class AddPodcastTrackAction extends Action {
                 </form>
             HTML;
         } else {
-            session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
 
             if (!isset($_SESSION['user'])) return "<p>Vous devez être connecté pour ajouter une piste.</p>";
 
@@ -61,11 +63,15 @@ class AddPodcastTrackAction extends Action {
 
             if (!isset($_SESSION['playlist'])) return "<p>Aucune playlist courrante. Veuillez d'abord sélectionner ou créer une playlist.</p>";
 
-            $track = $repo->savePodcastTrack(new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, ""));
-            $repo->linkPlaylistTrack($_SESSION['playlist']->id, $track->id);
+            $psessid = (unserialize($_SESSION['playlist']))->id;
+            $track = $repo->savePodcastTrack(new PodcastTrack(0, $titre, "", $duree ?? 0, $filename, $auteur, date('Y-m-d H:i:s')));
+            $repo->linkPlaylistTrack($psessid, $track->id);
 
-            $playlist = $repo->findPlaylistById($_SESSION['playlist']->id);
+            $playlist = $repo->findPlaylistById($psessid);
             $_SESSION['playlist'] = serialize($playlist);
+
+            header("Location: ./?action=display-playlist");
+            exit();
 
             return "<p>Piste ajoutée avec succès !</p>";
         }

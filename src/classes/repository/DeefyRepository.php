@@ -77,8 +77,14 @@ class DeefyRepository {
 
     // Ajoute un lien dans la BD entre une playliste et une piste
     public function linkPlaylistTrack(int $playlistID, int $trackID) : void{
-        $stmt = $this->pdo->prepare("INSERT INTO playlist2track(id_pl, id_track) VALUES (?, ?)");
-        $stmt->execute([$playlistID, $trackID]);
+        $stmt = $this->pdo->prepare("SELECT MAX(no_piste_dans_liste) AS lastTrackNumber FROM playlist2track WHERE id_pl = ?");
+        $stmt->execute([$playlistID]);
+        $lastTrackNumber = $stmt->fetchColumn();
+
+        $nextTrackNumber = $lastTrackNumber !== false ? $lastTrackNumber + 1 : 1;
+
+        $stmt = $this->pdo->prepare("INSERT INTO playlist2track(id_pl, id_track, no_piste_dans_liste) VALUES (?, ?, ?)");
+        $stmt->execute([$playlistID, $trackID, $nextTrackNumber]);
     }
 
     // Sauvegarde dans la BD la PodcastTrack passé en paramètre à retourne l'objet mis à jour avec sont id dans la BD d'ajouté 

@@ -24,7 +24,10 @@ class SigninAction extends Action {
                 </div>
             HTML;
         } else { // POST
-            session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            
             try {
                 $email = $_POST['emailu'];
 
