@@ -151,21 +151,4 @@ class DeefyRepository {
 
         return (int)$result['id_user'] ?? null;
     }
-
-
-    public function getPlaylistsUser(int $user_id): array {
-        $stmt = $this->pdo->prepare("SELECT id_pl FROM user2playlist WHERE id_user = ?");
-        $stmt->execute([$user_id]);
-        $result = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        return $result;
-    }
-
-    public function getUserID($mail): ?int {
-        $stmt = $this->pdo->prepare("SELECT id FROM user where email = ?");
-        $stmt->execute([$mail]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return (int)$result['id'] ?? null;
-    }
 }

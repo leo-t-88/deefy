@@ -20,4 +20,8 @@ class AudioList {
         }
         return $this->$prop;
     }
+
+    public function getNom() : string {
+        return $this->nom;
+    }
 }
