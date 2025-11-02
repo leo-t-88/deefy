@@ -1,22 +1,171 @@
+@font-face {
+    font-family: 'StudioFeixenSans';
+    src: url('./studio-feixen-sans-variable.ttf');
+}
+
 /* STYLES GENERAUX */
 html, body {
+    display: flex;
     height: 100vh;
     margin: 0;
-    display: flex;
     flex-direction: column;
+    background: 
+        linear-gradient(to bottom, rgba(142, 185, 255, 0.35) 0%, #eeeeee 90%),
+        linear-gradient(to bottom right, rgb(255, 196, 124) 0%, rgb(255, 149, 220) 30%, rgb(126, 175, 255) 60%, #eeeeee 90%);
+    background-color: #eeeeee;
+    background-size: 100% 30%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'StudioFeixenSans';
+    box-sizing: border-box;
+    padding: 35px 7px;
 }
 
-ul{
-    padding: 0px;
+a{text-decoration: none;}
+
+ul{list-style: none; padding: 0px;}
+
+li{list-style-type: none;}
+
+#menu-bar ul li a, button, input[type="text"], input[type="email"], input[type="password"], input[type="submit"], #playlists li, .menu-buttons a{
+    transition: all 0.3s ease;
 }
 
-li{
-    list-style-type: none;
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 250px;
+    padding: 9px;
+    margin: 7px 0;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 8px rgba(59,130,246,0.3);
+}
+
+button, input[type="submit"], .menu-buttons a {
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    background-color: #3b82f6;
+    color: #fff;
+    padding: 7px 15px;
+    border-radius: 20px;
+    border: none;
+}
+
+button:hover, input[type="submit"]:hover, .menu-buttons a:hover {
+    background-color: #1e40af;
+    transform: translateY(-2px);
 }
 
 /* STYLE DU MENU */
-#menu {
-    /*A faire*/
+#menu-bar {
+    display: flex;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    background: rgba(51, 51, 51, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 10px 30px;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+
+#menu-bar ul {
+    margin: 0;
+    display: flex;
+    gap: 25px;
+}
+
+#menu-bar a {
+    color: #fff;
+}
+
+#menu-bar ul li a {
+    font-variation-settings: "wght" 800, "wdth" 110;
+}
+#menu-bar ul li a:hover {
+    color: #aadfff;
+    font-variation-settings: "wght" 800, "wdth" 100;
+}
+
+label[for="menu-toggle"], #menu-toggle { display: none; }
+
+.menu-buttons {
+    display: flex;
+    gap: 12px;
+}
+.menu-buttons a:first-child { background: transparent; }
+.menu-buttons a:first-child:hover{ background: rgba(255, 255, 255, 0.15); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    label[for="menu-toggle"] {
+        position: fixed;
+        display: block;
+        top: 0px;
+        left: 0px;
+        margin: -15px;
+        width: 100px;
+        height: 100px;
+        z-index: 11;
+    }
+
+    label[for="menu-toggle"] path {
+        fill: none;
+        stroke: #000;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        --length: 24;
+        --offset: -38;
+        stroke-dasharray: var(--length) var(--total-length);
+        stroke-dashoffset: var(--offset);
+        transition: all 0.3s cubic-bezier(.645, .045, .355, 1);
+    }
+
+    label[for="menu-toggle"]:hover circle {opacity: 1;}
+
+    .line1, .line3 {--total-length: 126.64183044433594;}
+    .line2 {--total-length: 70;}
+
+    #menu-toggle:checked ~ label svg .line1, #menu-toggle:checked ~ label svg .line3 {
+        --length: 22.627416998;
+        --offset: -94.1149185097;
+    }
+    #menu-toggle:checked ~ label svg .line2 {
+        --length: 0;
+        --offset: -50;
+    }
+
+    #menu-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        justify-content: center;
+        gap: 25px;
+        padding: 0px;
+        transition: all 0.3s ease;
+        transform: translateX(-105%);
+    }
+
+    #menu-bar, #menu-bar ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #menu-toggle:checked ~ #menu-bar { transform: translateX(-15px); }
 }
 
 /* PAGE SIGNIN ET SIGNOUT */
@@ -26,4 +175,29 @@ li{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.signform > form{ text-align: center; }
+
+/* LISTE PLAYLIST */
+#playlists {
+    list-style: none;
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: 'StudioFeixenSans', sans-serif;
+}
+
+#playlists li {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 12px 20px;
+}
+
+#playlists li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }

@@ -7,6 +7,7 @@ use iutnc\deefy\render\AudioListRenderer;
 use iutnc\deefy\repository\DeefyRepository;
 use iutnc\deefy\auth\Authz;
 
+// Action qui permet d'afficher la playlist courante (en Session) ou une playlist précise donné par son id
 class DisplayPlaylistAction extends Action {
     public function execute() : string {
         session_start();

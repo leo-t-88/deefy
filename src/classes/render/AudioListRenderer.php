@@ -13,6 +13,7 @@ class AudioListRenderer implements Renderer {
         $this->list = $list;
     }
 
+    // Rendu de l'AudioList (utilise les renderes long de PodcastTrack et AlbumTrack)
     public function render(int $selector = 0): string {
         $rendu = "<h2>{$this->list->nom}</h2>\n\t<p>{$this->list->nbpistes} pistes, {$this->list->duree} secondes</p>\n\t<ul>\n";
 

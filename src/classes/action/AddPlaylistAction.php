@@ -8,6 +8,7 @@ use iutnc\deefy\render\AudioListRenderer;
 use iutnc\deefy\render\Renderer;
 use iutnc\deefy\repository\DeefyRepository;
 
+// Action qui permet de gérer un formulaire de créeation d'une playlist
 class AddPlaylistAction extends Action {
     public function execute() : string {
         if ($this->http_method === 'GET'){

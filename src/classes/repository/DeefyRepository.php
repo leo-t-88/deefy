@@ -9,11 +9,14 @@ use PDOException;
 use iutnc\deefy\audio\lists\Playlist;
 use \iutnc\deefy\audio\tracks\PodcastTrack;
 
+// Classe qui contient et gère toutes les connections, requêtes et insertions dans la base de données
 class DeefyRepository {
+    // Attributs
     private PDO $pdo;
     private static array $config = [];
     private static ?DeefyRepository $instance = null;
 
+    // Constructeur
     private function __construct() {
         try {
             $this->pdo = new PDO(self::$config['dsn'], self::$config['user'], self::$config['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
@@ -22,11 +25,13 @@ class DeefyRepository {
         }
     }
 
+    // Récupère l'instance du DeefyRepository
     public static function getInstance(): DeefyRepository {
         if (self::$instance === null) self::$instance = new DeefyRepository(self::$config);
         return self::$instance;
     }
 
+    // Charge la configuration depuis un fichier pour la connection à la BD
     public static function setConfig(string $file): void {
         $cfg = parse_ini_file($file);
         if (!$cfg) throw new \Exception("Fichier de configuration invalide : $file");
@@ -37,7 +42,11 @@ class DeefyRepository {
         ];
     }
 
-    // REQUETE GESTION PLAYLISTS ET TRACKS
+    /*
+    REQUETE GESTION PLAYLISTS ET TRACKS
+    */
+
+    // Retourne un tableau de toutes les playlistes existantes dans la BD
     public function findAllPlaylists(): array {
         $stmt = $this->pdo->query("SELECT * FROM playlist");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -50,6 +59,7 @@ class DeefyRepository {
         return $playlists;
     }
 
+    // Sauvegarde dans la BD la playlists passé en paramètre à retourne l'objet Playlists mis à jour avec sont id dans la BD d'ajouté 
     public function saveEmptyPlaylist(Playlist $playlist): Playlist {
         $stmt = $this->pdo->prepare("INSERT INTO playlist(nom) VALUES (?)");
         $stmt->execute([$playlist->nom]);
@@ -57,6 +67,7 @@ class DeefyRepository {
         return $playlist;
     }
 
+    // Ajoute un lien dans la BD entre un utilisateur et une playliste
     public function linkUserPlaylist(string $email, int $playlistID) : void{
         $userID = $this->getUser($email)['id']; //Récupère l'ID de l'utilisateur à partir de son email
 
@@ -64,11 +75,13 @@ class DeefyRepository {
         $stmt->execute([$userID, $playlistID]);
     }
 
+    // Ajoute un lien dans la BD entre une playliste et une piste
     public function linkPlaylistTrack(int $playlistID, int $trackID) : void{
         $stmt = $this->pdo->prepare("INSERT INTO playlist2track(id_pl, id_track) VALUES (?, ?)");
         $stmt->execute([$playlistID, $trackID]);
     }
 
+    // Sauvegarde dans la BD la PodcastTrack passé en paramètre à retourne l'objet mis à jour avec sont id dans la BD d'ajouté 
     public function savePodcastTrack(PodcastTrack $track): PodcastTrack {
         $stmt = $this->pdo->prepare("INSERT INTO track (titre, genre, duree, filename, type, auteur_podcast, date_podcast) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
@@ -85,11 +98,7 @@ class DeefyRepository {
         return $track;
     }
 
-    public function addTrackToPlaylist(int $playlistId, int $trackId): void {
-        $stmt = $this->pdo->prepare("INSERT INTO playlist2track (id_pl, id_track) VALUES (?, ?)");
-        $stmt->execute([$playlistId, $trackId]);
-    }
-
+    // Retourne l'objet Playlist associer à l'ID passer en paramètre si elle existe dans la BD sinon null
     public function findPlaylistById(int $id): ?Playlist {
         $stmt = $this->pdo->prepare("SELECT * FROM playlist WHERE id = ?");
         $stmt->execute([$id]);
@@ -123,7 +132,11 @@ class DeefyRepository {
         return $pl;
     }
 
-    // REQUETE GESTION UTILISATEURS
+    /*
+     REQUETE GESTION UTILISATEURS
+    */
+
+    // Retourne le hash du mdp de l'utilisateur stocké dans la BD
     public function getHashUser(string $email): ?string {
         $stmt = $this->pdo->prepare("SELECT passwd FROM user WHERE email = :email");
         $stmt->execute([':email' => $email]);
@@ -131,11 +144,13 @@ class DeefyRepository {
         return $result['passwd'] ?? null;
     }
 
+    // Insère un utilisateur (email + hash du mdp) dans la BD
     public function insertUser(string $email, string $hash): void {
         $stmt = $this->pdo->prepare("INSERT INTO user (email, passwd) VALUES (:email, :hash)");
         $stmt->execute([':email' => $email, ':hash' => $hash]);
     }
 
+    // Retourne toutes les informations stocké dans la BD de l'utilisateur s'il existe sinon null
     public function getUser(string $email): ?array {
         $stmt = $this->pdo->prepare("SELECT id, role FROM user WHERE email = :email");
         $stmt->execute([':email' => $email]);
@@ -144,6 +159,7 @@ class DeefyRepository {
         return $result ?: null;
     }
 
+    // Retourne l'id de l'utilisateur auquel appartient une playliste donnée (via ID) si elle existe dans la BD sinon null
     public function getPlaylistOwnerId(int $playlistId): ?int {
         $stmt = $this->pdo->prepare("SELECT id_user FROM user2playlist WHERE id_pl = ?");
         $stmt->execute([$playlistId]);

@@ -6,9 +6,11 @@ use iutnc\deefy\exception\InvalidPropertyNameException;
 use iutnc\deefy\exception\InvalidPropertyValueException;
 
 class AudioTrack {
+    // Attributs
     protected string $titre, $fichier, $genre;
     protected int $duree, $id;
 
+    // Constructeur de l'AudioTrack
     public function __construct(int $id, string $titre, string $genre, int $duree, string $fichier) {
         $this->id = $id;
         $this->titre = $titre;
@@ -17,11 +19,13 @@ class AudioTrack {
         $this->fichier = $fichier;
     }
 
+    // GETTER MAGIQUE
     public function __get(string $prop): mixed {
         if (!property_exists($this, $prop)) throw new InvalidPropertyNameException("invalid property : $prop");
         return $this->$prop;
     }
 
+    // SETTER MAGIQUE
     public function __set(string $prop, mixed $val): void {
         if ($prop === 'duree' && $val < 0) throw new InvalidPropertyValueException("Durée négative : $val");
         if (!property_exists($this, $prop)) throw new InvalidPropertyNameException("invalid property : $prop");

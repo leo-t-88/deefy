@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace iutnc\deefy\render;
 
+// Classe Abstraite pour le rendu des objets de type AudioTrack et AudioList
 abstract class AudioTrackRenderer implements Renderer {
     protected object $track;
 

@@ -5,6 +5,7 @@ namespace iutnc\deefy\action;
 use iutnc\deefy\auth\AuthnProvider;
 use iutnc\deefy\exception\AuthnException;
 
+// Action d'inscription demande l'email et le mot de passe x2 si inscription OK alors email stocké en Session
 class SignupAction extends Action {
     public function execute() : string {
         if ($this->http_method === 'GET'){
@@ -16,10 +17,12 @@ class SignupAction extends Action {
                         <br>
                         <input type="password" id="mdpu" name="mdpu" placeholder="Mot de passe" required>
                         <br>
-                        <input type="password" id="mdp2u" name="mdp2u" placeholder="Mot de passe" required>
+                        <input type="password" id="mdp2u" name="mdp2u" placeholder="Retaper le Mot de passe" required>
                         <br>
                         <input type="submit" value="S'inscrire">
                     </form>
+                    <br>
+                    <a href="?action=signin">Déjà inscrit ?</a>
                 </div>
             HTML;
         } else { // POST

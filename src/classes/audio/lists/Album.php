@@ -11,6 +11,7 @@ class Album extends AudioList {
         $this->date = "???";
     }
 
+    // SETTER
     public function setArtiste(string $a): void { $this->artiste = $a; }
     public function setDate(string $d): void { $this->date = $d; }
 }

@@ -5,6 +5,7 @@ namespace iutnc\deefy\action;
 use iutnc\deefy\auth\AuthnProvider;
 use iutnc\deefy\exception\AuthnException;
 
+// Action de connection demande l'email et le mot de passe si connection OK alors email stocké en Session
 class SigninAction extends Action {
     public function execute() : string {
         if ($this->http_method === 'GET'){
@@ -18,6 +19,8 @@ class SigninAction extends Action {
                         <br>
                         <input type="submit" value="Se connecter">
                     </form>
+                    <br>
+                    <a href="?action=signup">Pas encore inscrit ?</a>
                 </div>
             HTML;
         } else { // POST

@@ -11,6 +11,7 @@ use iutnc\deefy\repository\DeefyRepository;
 use iutnc\deefy\auth\Authz;
 use iutnc\deefy\exception\AuthnException;
 
+// Action qui permet de gérer un formulaire d'ajout de PodcastTrack à la playliste courante (en session)
 class AddPodcastTrackAction extends Action {
     public function execute() : string {
         if ($this->http_method === 'GET'){
