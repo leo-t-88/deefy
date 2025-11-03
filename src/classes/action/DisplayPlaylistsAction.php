@@ -23,7 +23,7 @@ class DisplayPlaylistsAction extends Action {
             try {
                 Authz::checkPlaylistOwner($p->id);
                 $nom = htmlspecialchars($p->nom, ENT_QUOTES);
-                $playlistUser .= "\t\t<a href='?action=display-playlist&id={$p->id}'><li>$nom</li></a>\n";
+                $playlistUser .= "\t\t<li><a href='?action=display-playlist&id={$p->id}'>$nom</a></li>\n";
             } catch (AuthnException $e) {}
         }
 

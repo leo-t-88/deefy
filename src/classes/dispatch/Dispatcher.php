@@ -53,7 +53,7 @@ class Dispatcher {
         </head>
         <body>
             <div class="menu">
-                <input type="checkbox" id="menu-toggle" />
+                <input type="checkbox" id="menu-toggle">
                 <label for="menu-toggle" class="hamburger">
                     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                         <path class="line1" d="M0 40h62c13 0 6 28-4 18L35 35"></path>
